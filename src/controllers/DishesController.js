@@ -68,6 +68,8 @@ class DishesController {
       description: description ?? dish.description,
       category: category ?? dish.category,
       price: price ?? dish.price,
+      updated_by: request.user.id,
+      updated_at: knex.fn.now(),
     };
 
     if (imageFilename) {
@@ -94,8 +96,6 @@ class DishesController {
 
       await knex("ingredients").insert(ingredientsInsert);
     }
-
-    dishUpdate.updated_by = dish.created_by;
 
     await knex("dishes").where({ id }).update(dishUpdate);
 
