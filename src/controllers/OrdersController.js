@@ -41,6 +41,23 @@ class OrdersController {
       order_items,
     });
   }
+  
+  async update(request, response) {
+    const { id } = request.params;
+    const { status, price, payment_method } = request.body;
+
+    const order = await knex("orders").where({ id }).first();
+
+    const orderUpdate = {
+      status: status ?? order.status,
+      price: price ?? order.price,
+      payment_method: payment_method ?? order.payment_method,
+    };
+
+    await knex("orders").where({ id }).update(orderUpdate);
+
+    return response.json();
+  }
 
   async delete(request, response) {
     const { id } = request.params;

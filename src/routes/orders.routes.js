@@ -13,5 +13,6 @@ ordersRoutes.use(ensureAuthenticated);
 ordersRoutes.post("/", ordersController.create);
 ordersRoutes.get("/:id", ordersController.show);
 ordersRoutes.delete("/:id", checkAdminPermission, ordersController.delete);
+ordersRoutes.patch("/:id", checkAdminPermission, ordersController.update);
 
 module.exports = ordersRoutes;
