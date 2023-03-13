@@ -27,6 +27,28 @@ class OrdersController {
 
     return response.json();
   }
+
+  async show(request, response) {
+    const { id } = request.params;
+
+    const order = await knex("orders").where({ id }).first();
+    const order_items = await knex("order_items")
+      .where({ order_id: id })
+      .orderBy("name");
+
+    return response.json({
+      ...order,
+      order_items,
+    });
+  }
+
+  async delete(request, response) {
+    const { id } = request.params;
+
+    await knex("orders").where({ id }).delete();
+
+    return response.json();
+  }
 }
 
 module.exports = OrdersController;
