@@ -1,4 +1,5 @@
 const knex = require("../database/knex");
+const AppError = require("../utils/AppError");
 
 class CartsController {
   async create(request, response) {
@@ -35,6 +36,39 @@ class CartsController {
       ...cart,
       cart_items,
     });
+  }
+
+  async update(request, response) { 
+    const { id } = request.params;
+    const { cart_items } = request.body;
+
+    const cart = await knex("carts").where({ id }).first();
+
+    if (!cart) {
+      throw new AppError("Carrinho não encontrado.", 404);
+    }
+
+    const cartUpdate = {
+      updated_at: knex.fn.now(),
+    }
+
+    await knex("cart_items").where({ cart_id: id }).delete();
+
+    const itemsInsert = cart_items.map(async ({ dish_id, quantity }) => {
+      const { name } = await knex("dishes").select("name").where({ id: dish_id }).first();
+
+      return {
+        cart_id: id,
+        dish_id,
+        name,
+        quantity,
+      };
+    });
+
+    await knex("cart_items").insert(await Promise.all(itemsInsert));
+    await knex("carts").where({ id }).update(cartUpdate);
+
+    return response.json();
   }
 
   async delete(request, response) {
