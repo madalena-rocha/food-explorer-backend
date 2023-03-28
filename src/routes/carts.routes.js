@@ -10,5 +10,7 @@ const cartsController = new CartsController();
 cartsRoutes.use(ensureAuthenticated);
 
 cartsRoutes.post("/", cartsController.create);
+cartsRoutes.get("/:id", cartsController.show);
+cartsRoutes.delete("/:id", cartsController.delete);
 
 module.exports = cartsRoutes;

@@ -24,6 +24,27 @@ class CartsController {
 
     return response.json();
   }
+
+  async show(request, response) {
+    const { id } = request.params;
+
+    const cart = await knex("carts").where({ id }).first();
+    const cart_items = await knex("cart_items").where({ cart_id: id });
+
+    return response.json({
+      ...cart,
+      cart_items,
+    });
+  }
+
+  async delete(request, response) {
+    const { id } = request.params;
+
+    await knex("cart_items").where({ cart_id: id }).delete();
+    await knex("carts").where({ id }).delete();
+
+    return response.json();
+  }
 }
 
 module.exports = CartsController;
