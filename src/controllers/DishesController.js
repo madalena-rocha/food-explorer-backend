@@ -109,14 +109,14 @@ class DishesController {
   }
 
   async index(request, response) {
-    const { title, ingredients } = request.query;
+    const { search } = request.query;
 
     let dishes;
 
-    if (ingredients) {
-      const filterIngredients = ingredients.split(",").map((ingredient) => ingredient.trim());
+    if (search) {
+      const keywords = search.split(" ").map((keyword) => `%${keyword}%`);
 
-      dishes = await knex("ingredients")
+      dishes = await knex("dishes")
         .select([
           "dishes.id",
           "dishes.name",
@@ -125,14 +125,31 @@ class DishesController {
           "dishes.price",
           "dishes.image",
         ])
-        .whereLike("dishes.name", `%${title}%`)
-        .whereIn("ingredients.name", filterIngredients)
-        .innerJoin("dishes", "dishes.id", "ingredients.dish_id")
+        .leftJoin("ingredients", "dishes.id", "ingredients.dish_id")
+        .where((builder) => {
+          builder.where((builder2) => {
+            keywords.forEach((keyword) => {
+              builder2.orWhere("dishes.name", "like", keyword);
+              builder2.orWhere("dishes.description", "like", keyword);
+            });
+          });
+          keywords.forEach((keyword) => {
+            builder.orWhere("ingredients.name", "like", keyword);
+          });
+        })
+        .groupBy("dishes.id")
         .orderBy("dishes.name");
     } else {
       dishes = await knex("dishes")
-        .whereLike("name", `%${title}%`)
-        .orderBy("name");
+        .select([
+          "dishes.id",
+          "dishes.name",
+          "dishes.description",
+          "dishes.category",
+          "dishes.price",
+          "dishes.image",
+        ])
+        .orderBy("dishes.name");
     }
 
     const dishesIngredients = await knex("ingredients");
