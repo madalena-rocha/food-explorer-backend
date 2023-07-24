@@ -79,7 +79,13 @@ $ cd food-explorer-backend
 $ npm install
 ```
 
-4. Inicie o servidor:
+4. Execute as migrações:
+
+```
+$ npm run migrate
+```
+
+5. Inicie o servidor:
 
 ```
 $ npm start
